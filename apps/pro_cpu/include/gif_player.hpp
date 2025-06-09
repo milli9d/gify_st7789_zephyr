@@ -13,8 +13,8 @@ namespace gify {
 // #define FRAME_RATE 30u
 // #define FRAME_RATE 60u
 
-#define TFT_W      172
-#define TFT_H      320
+#define TFT_W      240
+#define TFT_H      280
 #define BPP_COOKED 2u
 
 /**

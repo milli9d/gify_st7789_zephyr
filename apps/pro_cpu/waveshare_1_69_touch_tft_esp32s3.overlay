@@ -1,0 +1,113 @@
+/*
+* Copyright (c) 2020, Kim Bøndergaard, <kim@fam-boendergaard.dk>
+*
+* SPDX-License-Identifier: Apache-2.0
+*/
+
+#include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+
+&pinctrl {
+    waveshare_tftspi_bus: waveshare_tftspi_bus {
+        group1 {
+            pinmux = <SPIM2_MISO_GPIO9>,
+            <SPIM2_SCLK_GPIO6>,
+            <SPIM2_CSEL_GPIO5>;
+        };
+        group2 {
+            pinmux = <SPIM2_MOSI_GPIO7>;
+            output-low;
+        };
+    };
+    
+    waveshare_i2c_bus: waveshare_i2c_bus{
+        group1 {
+            pinmux = <I2C0_SDA_GPIO11>,
+            <I2C0_SCL_GPIO10>;
+            bias-pull-up;
+            drive-open-drain;
+            output-high;
+        };
+    };
+};
+
+&i2c0 {
+    status = "okay";
+    pinctrl-0 = <&waveshare_i2c_bus>;
+    
+    // 51 or 6b
+    cst816s: cst816s@15 {
+        compatible = "hynitron,cst816s";
+        reg = <0x15>;
+        rst-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+        irq-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
+        status = "okay";
+    };
+};
+
+&spi2 {
+    pinctrl-0 = <&waveshare_tftspi_bus>;
+};
+
+&usb_serial {
+    status = "okay";
+};
+
+/* 16MB flash */
+&flash0 {
+    reg = <0x0 DT_SIZE_M(16)>;
+};
+
+
+
+/* 8MB psram */
+&psram0 {
+    size = <DT_SIZE_M(8)>;
+};
+
+/ {
+    chosen {
+        zephyr,display = &st7789v_st7789v_waveshare_240_280;
+        zephyr,console = &usb_serial;
+        zephyr,shell-uart = &usb_serial;
+    };
+    
+    zephyr,user {
+        tft_led-gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+    };
+    
+    mipi_dbi_st7735r_ada_128x128 {
+        compatible = "zephyr,mipi-dbi-spi";
+        spi-dev = <&spi2>;
+        dc-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;	    /* D41 */
+        reset-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;	/* D39 */
+        #address-cells = <1>;
+        #size-cells = <0>;
+        
+        st7789v_st7789v_waveshare_240_280: st7789v@0 {
+            compatible = "sitronix,st7789v";
+            mipi-max-frequency = <50000000>;
+            reg = <0>;
+            width = <240>;
+            height = <280>;
+            x-offset = <0>;
+            y-offset = <0>;
+            vcom = <0x19>;
+            gctrl = <0x35>;
+            vrhs = <0x12>;
+            vdvs = <0x20>;
+            mdac = <0x00>;
+            gamma = <0x02>;// 01h G2.2 ; 02h G1.8 ; 03h G2.5; 04h G1.0
+            colmod = <0x65>;
+            lcm = <0x2c>;
+            porch-param = [0c 0c 00 33 33];
+            cmd2en-param = [5a 69 02 01];
+            pwctrl1-param = [52 a1];
+            pvgam-param = [D0 04 0D 11 13 2B 3F 54 4C 18 0D 0B 1F 23];
+            nvgam-param = [D0 04 0C 11 13 2C 3F 44 51 2F 1F 1F 20 23];
+            ram-param = [00 C0];
+            rgb-param = [CD 08 14];
+            mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
+        };
+    };
+};
+
