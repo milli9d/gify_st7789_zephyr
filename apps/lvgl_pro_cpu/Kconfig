@@ -1,0 +1,5 @@
+menu "Pixy Toy Shell PRO CPU"
+
+source "Kconfig.zephyr"
+
+endmenu

@@ -10,7 +10,7 @@ list(APPEND EXTRA_ZEPHYR_MODULES
 # list(APPEND BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../)
 
 # import overlays for CPUs
-set(DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/waveshare_1_69_touch_tft_esp32s3.overlay)
+set(DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/st7735_esp32c6.overlay)
 
 # add drivers
 
