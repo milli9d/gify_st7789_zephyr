@@ -10,7 +10,7 @@
 
 #include <AnimatedGIF.h>
 
-#include <gifs/big_scr.h>
+#include <gifs/this_is_fine.h>
 // #include <gifs/sunset_gif.h>
 
 #include <gif_player.hpp>
@@ -24,7 +24,7 @@ namespace gify {
 
 AnimatedGIF _gif;
 uint8_t     ucFrameBuffer[(TFT_W * TFT_H) +
-                      ((TFT_W * TFT_H) * BPP_COOKED)] __attribute__((section("storage2"))) = {}; // holds current canvas as 8-bpp and
+                      ((TFT_W * TFT_H) * BPP_COOKED)] = {}; // holds current canvas as 8-bpp and
                                                                 // 16-bit output after that
 
 K_THREAD_STACK_DEFINE(gif_player_stack, GIF_PLAYER_STACK_SIZE);
@@ -32,11 +32,11 @@ struct k_thread gif_player_thread_data;
 
 void clear_screen(const struct device* scr)
 {
-    uint16_t*                        _buf  = (uint16_t*)calloc(240 * 280 * sizeof(uint16_t), 0u);
-    struct display_buffer_descriptor _desc = { .buf_size         = 240u * 280u * 2u,
-                                               .width            = 240u,
-                                               .height           = 280u,
-                                               .pitch            = 240u,
+    uint16_t*                        _buf = (uint16_t*)calloc(TFT_W * TFT_H * sizeof(uint16_t), 0u);
+    struct display_buffer_descriptor _desc = { .buf_size         = TFT_W * TFT_H * 2u,
+                                               .width            = TFT_W,
+                                               .height           = TFT_H,
+                                               .pitch            = TFT_W,
                                                .frame_incomplete = false };
 
     int rc = display_write(scr, 0u, 0u, &_desc, (void*)&_buf[0u]);
@@ -80,7 +80,7 @@ void gif_player::_run(void* p0, void* p1, void* p2)
         printk("Failed to turn on display blanking: %d\n", rc);
     }
 
-    clear_screen(dev);
+    // clear_screen(dev);
 
     while (1) {
         _gif.begin(GIF_PALETTE_RGB565_BE); // Choose the "OLED" version of 1-bpp
