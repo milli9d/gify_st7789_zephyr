@@ -29,7 +29,7 @@
 		};
 		group2 {
 			pinmux = <SPIM2_MOSI_GPIO45>;
-			// output-low;
+			output-low;
 		};
 	};
 };
