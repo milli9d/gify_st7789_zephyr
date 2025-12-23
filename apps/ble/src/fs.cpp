@@ -16,7 +16,7 @@ LOG_MODULE_REGISTER(LittleFS);
 FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(storage);
 static struct fs_mount_t lfs_storage_mnt = {
     .type        = FS_LITTLEFS,
-    .mnt_point   = "/mnt",
+    .mnt_point   = "/flash",
     .fs_data     = &storage,
     .storage_dev = (void*)FIXED_PARTITION_ID(lfs_partition),
 };
