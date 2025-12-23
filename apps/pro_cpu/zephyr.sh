@@ -39,12 +39,12 @@ if [[ ${command} == "help" || -z ${command} ]]; then
     exit 0
 fi
 
-if [[ $(OS) == "Windows_NT" ]]; then
-    echo "Not supported on Windows"
-    exit 1
-else
+if [[ $(uname) == "Darwin" ]]; then
     zephyrproject_dir=~/zephyrproject
     zephyr_root_dir=~/zephyrproject/zephyr
+elif [[ $(OS) == "Windows_NT" ]]; then
+    echo "Not supported on Windows"
+    exit 1
 fi
 
 # check if zephyr exists
@@ -80,11 +80,17 @@ if [[ ${command} == "build" ]]; then
         pristine=always
     fi
 
-    (
-        source ~/zephyrproject/.venv/bin/activate
-        cd ~/zephyrproject/zephyr
-        west build -b=${board} ${proj_dir} -p=${pristine}
-    )
+    source ~/zephyrproject/.venv/bin/activate
+    cd ~/zephyrproject/zephyr
+    west build -b=${board} ${proj_dir} -p=${pristine}
+
+    if [[ ${4} == "flash" ]]; then
+        west flash    
+    fi
+
+    if [[ ${5} == "monitor" ]]; then
+        west espressif monitor    
+    fi
 fi
 
 if [[ ${command} == "flash" ]]; then

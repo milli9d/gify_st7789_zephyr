@@ -10,14 +10,13 @@
 #include "pin_defines.hpp"
 #include "gif_player.hpp"
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(main);
+
 int main()
 {
+    LOG_INF("Gify ST7789 ESP32 Demo!");
     static gify::gif_player gif_player;
-
-    while (1) {
-        printk("Welcome to ST7789 demo!\n");
-        k_sleep(K_SECONDS(rand() % 30u));
-    }
-
+    k_thread_suspend(k_current_get());
     return 0;
 }

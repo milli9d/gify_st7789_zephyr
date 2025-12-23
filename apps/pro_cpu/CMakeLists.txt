@@ -9,7 +9,7 @@ list(APPEND EXTRA_ZEPHYR_MODULES
 )
 
 # import overlays for CPUs
-set(DTC_OVERLAY_FILE ${PROJECT_ROOT_DIR}/overlays/waveshare_1_47_tft_esp32s3.overlay)
+set(DTC_OVERLAY_FILE ${PROJECT_ROOT_DIR}/overlays/waveshare_1_47_tft_esp32c6.overlay)
 
 # add extra configuration
 set(EXTRA_CONF_FILE ${CMAKE_CURRENT_LIST_DIR}/prj.conf)
@@ -18,7 +18,7 @@ set(EXTRA_CONF_FILE ${CMAKE_CURRENT_LIST_DIR}/prj.conf)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 # declare project
-project(PixyToyZephyr)
+project(GifyESP32Zephyr)
 
 # add sources
 file(GLOB_RECURSE srcs ${CMAKE_CURRENT_LIST_DIR}/src/*.c*)
