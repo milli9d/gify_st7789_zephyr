@@ -13,7 +13,7 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(BLE_Service);
+LOG_MODULE_REGISTER(BT_GAP_Peripheral);
 
 static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -29,7 +29,7 @@ static void mtu_updated(struct bt_conn* conn, uint16_t tx, uint16_t rx)
 }
 static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = mtu_updated };
 
-int ble_service_init()
+int bt_gap_init()
 {
     int rc = bt_enable(NULL);
     if (rc) {
@@ -50,4 +50,4 @@ int ble_service_init()
     return 0;
 }
 
-SYS_INIT(ble_service_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+SYS_INIT(bt_gap_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
