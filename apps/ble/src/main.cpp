@@ -5,9 +5,28 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
 
+void boot_banner()
+{
+    printk(R"(
+         _____________________________   
+        /        _____________        \  
+        | == .  |             |     o |  
+        |   _   |             |   B   |  
+        |  / \  |             | A  O  |  
+        | | O | |             |  O    |  
+        |  \_/  |             |       |  
+        | B L E |             | . . . |  
+        |  :::  |             | . . . |  
+        |  :::  |_____________| . . . |  
+        |           G I F Y           |  
+        \_____________________________/
+    )"
+           "\n");
+}
+
 int main()
 {
-    printk("Hello Zephyr BLE Gify App!\n");
+    boot_banner();
 
     while (1) {
         k_sleep(K_MSEC(1000));

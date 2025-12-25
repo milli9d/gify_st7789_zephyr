@@ -5,8 +5,7 @@ set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../)
 
 # add modules
 list(APPEND EXTRA_ZEPHYR_MODULES
-    # ${PROJECT_ROOT_DIR}/modules/AnimatedGIF
-    /Users/millindsingh/Desktop/repos_cleanroom/zephyr_mono/projects/nature_of_code_zephyr/modules/reiki_sdk_zephyr
+    ${PROJECT_ROOT_DIR}/modules/reiki_sdk_zephyr
 )
 
 # import overlays for CPUs

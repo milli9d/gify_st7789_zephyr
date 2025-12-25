@@ -12,16 +12,9 @@ IWhite='\033[0;97m'  # White
 IReset='\033[0m'     # Text Reset
 
 # parse in CLI arguments
-proj_dir=$(pwd)
 command=$1
 board=$2
 pristine=$3
-
-if [[ -e $4 ]]; then
-    output_dir=$4
-else
-    output_dir=${proj_dir}/build
-fi
 
 # add full zephyr setup
 if [[ ${command} == "help" || -z ${command} ]]; then
@@ -39,7 +32,7 @@ if [[ ${command} == "help" || -z ${command} ]]; then
     exit 0
 fi
 
-if [[ $(uname) == "Darwin" ]]; then
+if [[ $(uname) == "Darwin" ]] || [[ $(uname) == "Linux" ]]; then
     zephyrproject_dir=~/zephyrproject
     zephyr_root_dir=~/zephyrproject/zephyr
 elif [[ $(OS) == "Windows_NT" ]]; then
@@ -47,10 +40,12 @@ elif [[ $(OS) == "Windows_NT" ]]; then
     exit 1
 fi
 
+proj_dir=$(pwd)
+
 # check if zephyr exists
 if [[ ! -d ${zephyr_root_dir} ]]; then
     (
-        cd ${proj_dir}/../../
+        cd ../..
         ./scripts/setup.sh
     )
 fi
@@ -75,22 +70,16 @@ if [[ ${command} == "build" ]]; then
         exit 1
     fi
 
-    if [[ -z "${pristine}" ]]; then
+    if [[ -z "${pristine}" ]]; then 
         echo -e "${IYellow}Performing Pristine build${IReset}"
         pristine=always
     fi
 
-    source ~/zephyrproject/.venv/bin/activate
-    cd ~/zephyrproject/zephyr
-    west build -b=${board} ${proj_dir} -p=${pristine}
-
-    if [[ ${4} == "flash" ]]; then
-        west flash    
-    fi
-
-    if [[ ${5} == "monitor" ]]; then
-        west espressif monitor    
-    fi
+    (
+        source ~/zephyrproject/.venv/bin/activate
+        cd ~/zephyrproject/zephyr
+        west build -b=${board} ${proj_dir} -p=${pristine}
+    )
 fi
 
 if [[ ${command} == "flash" ]]; then
@@ -100,6 +89,7 @@ if [[ ${command} == "flash" ]]; then
         west flash
     )
 fi
+
 
 if [[ ${command} == "monitor" ]]; then
     (

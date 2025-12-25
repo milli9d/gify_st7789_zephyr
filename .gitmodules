@@ -1,3 +1,6 @@
 [submodule "modules/AnimatedGIF/AnimatedGIF"]
 	path = modules/AnimatedGIF/AnimatedGIF
 	url = https://github.com/bitbank2/AnimatedGIF.git
+[submodule "modules/reiki_sdk_zephyr"]
+	path = modules/reiki_sdk_zephyr
+	url = https://github.com/milli9d/reiki_sdk_zephyr.git

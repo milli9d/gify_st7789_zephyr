@@ -15,12 +15,15 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(BT_GAP_Peripheral);
 
+#include <ble/ble_init_prio.h>
+
 static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 };
 
 static const struct bt_data sd[] = {
     BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+    BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_OTS_VAL)),
 };
 
 static void mtu_updated(struct bt_conn* conn, uint16_t tx, uint16_t rx)

@@ -1,0 +1,8 @@
+#pragma once
+
+#include <zephyr/kernel.h>
+#include <zephyr/init.h>
+
+#define BLE_INIT_PRIO_GAP  (CONFIG_APPLICATION_INIT_PRIORITY)
+#define BLE_INIT_PRIO_GATT (CONFIG_APPLICATION_INIT_PRIORITY + 1)
+#define BLE_INIT_PRIO_OTS  (CONFIG_APPLICATION_INIT_PRIORITY + 2)
