@@ -39,6 +39,21 @@ static const struct bt_data sd[] = {
     BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_OTS_VAL)),
 };
 
+static void adv_restart_work_handler(struct k_work* work);
+static K_WORK_DELAYABLE_DEFINE(adv_restart_work, adv_restart_work_handler);
+
+static void adv_restart_work_handler(struct k_work* work)
+{
+    int rc = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+    if (rc) {
+        LOG_ERR("Advertising failed to start (err %d)", rc);
+        // Retry after 1 second if it failed
+        k_work_schedule(&adv_restart_work, K_MSEC(1000));
+    } else {
+        LOG_INF("Advertising successfully restarted");
+    }
+}
+
 static void mtu_updated(struct bt_conn* conn, uint16_t tx, uint16_t rx)
 {
     printk("Updated MTU: TX: %d RX: %d bytes\n", tx, rx);
@@ -87,15 +102,10 @@ static void disconnected(struct bt_conn* conn, uint8_t reason)
 {
     bt_conn_unref(conn);
     printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
-
-    int rc = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-    if (rc) {
-        LOG_ERR("Advertising failed to start (err %d)", rc);
-        return;
-    }
-
-    LOG_INF("Advertising successfully started");
     (void)atomic_set_bit(state, STATE_DISCONNECTED);
+
+    // Schedule advertising restart after a short delay to allow stack cleanup
+    k_work_schedule(&adv_restart_work, K_MSEC(100));
 }
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
