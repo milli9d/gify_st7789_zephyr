@@ -17,6 +17,7 @@
 #include <unordered_map>
 
 #include <simpleble/SimpleBLE.h>
+#include <string>
 #include <unordered_set>
 #include <vector>
 
@@ -60,7 +61,7 @@ static void progress_bar(size_t current, size_t total) {
     else
       std::cout << " ";
   }
-  std::cout << "] " << int(progress * 100.0) << " %\r";
+  std::cout << "] " << int(progress * 100.0) << " % [ " << current << " / " << total <<" bytes ]\r";
   std::cout.flush();
 }
 
@@ -83,8 +84,66 @@ static void init_ble_gap() {
   });
 }
 
-int main() {
+static void print_usage(const char *prog) {
+  std::cout << "Usage: " << prog << " --file PATH | -f PATH [or positional PATH]\n";
+}
+
+struct CliOptions {
+  std::string file_path;
+  bool show_help = false;
+};
+
+static CliOptions parse_args(int argc, char **argv) {
+  CliOptions opts;
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = argv[i];
+    if (arg == "-h" || arg == "--help") {
+      opts.show_help = true;
+      break;
+    } else if (arg == "-f" || arg == "--file") {
+      if (i + 1 < argc) {
+        opts.file_path = argv[++i];
+      } else {
+        std::print("Missing value for {}\n", arg.c_str());
+        opts.show_help = true;
+        break;
+      }
+    } else if (!arg.empty() && arg[0] != '-') {
+      // Positional file path if not set yet
+      if (opts.file_path.empty()) {
+        opts.file_path = arg;
+      } else {
+        std::print("Unexpected positional argument: {}\n", arg.c_str());
+        opts.show_help = true;
+        break;
+      }
+    } else {
+      std::print("Unknown option: {}\n", arg.c_str());
+      opts.show_help = true;
+      break;
+    }
+  }
+  return opts;
+}
+
+int main(int argc, char **argv) {
   std::print("Hello BLE\n");
+
+  // Parse arguments
+  CliOptions opts = parse_args(argc, argv);
+  if (opts.show_help) {
+    print_usage(argv[0]);
+    return 1;
+  }
+  std::string filename;
+  if (!opts.file_path.empty()) {
+    filename = opts.file_path;
+    std::print("Using file path: {}\n", filename.c_str());
+  } else {
+    std::print("Error: file_path is required.\n");
+    print_usage(argv[0]);
+    return 1;
+  }
 
   init_ble_gap();
 
@@ -157,10 +216,16 @@ int main() {
     return 1;
   }
 
-  //
-  std::string filename =
-      "/Users/millindsingh/Desktop/repos_cleanroom/zephyr_mono/projects/"
-      "gify_st7789_zephyr/apps/pro_cpu/include/gifs/this_is_fine.h";
+  // Validate file path before opening
+  if (!std::filesystem::exists(filename)) {
+    std::print("Provided file_path does not exist: {}\n", filename.c_str());
+    return 1;
+  }
+  if (!std::filesystem::is_regular_file(filename)) {
+    std::print("Provided file_path is not a regular file: {}\n",
+               filename.c_str());
+    return 1;
+  }
   const std::string basename =
       std::filesystem::path(filename).filename().string() +
       std::filesystem::path(".bin").extension().string();
@@ -172,17 +237,14 @@ int main() {
     return 1;
   }
 
-  //   size_t file_size = file_stream.tellg();
-  //   file_stream.seekg(0, std::ios::beg);
+  size_t file_size = file_stream.tellg();
+  file_stream.seekg(0, std::ios::beg);
 
-  //   std::vector<char> file_data(file_size);
-  //   if (!file_stream.read(file_data.data(), file_size)) {
-  //     std::print("Failed to read file: {}\n", filename.c_str());
-  //     return 1;
-  //   }
-
-  std::span<uint8_t> file_data((uint8_t *)&gif[0], sizeof(gif));
-  size_t file_size = file_data.size();
+  std::vector<char> file_data(file_size);
+  if (!file_stream.read(file_data.data(), file_size)) {
+    std::print("Failed to read file: {}\n", filename.c_str());
+    return 1;
+  }
 
   std::print("Read file: {} ({} bytes)\n", filename.c_str(), file_size);
 
@@ -210,18 +272,18 @@ int main() {
   uint16_t mtu = ftp_ctx.peripheral.mtu();
   std::print("Peripheral MTU: {} bytes\n", mtu);
 
-  uint32_t chunk_size = mtu - 3; // ATT header size
-  std::print("Using chunk size: {} bytes\n", chunk_size);
+  // Base chunk size is MTU minus ATT header (3 bytes), determined by device.
+  size_t default_chunk = (mtu > 3) ? (mtu - 3) : mtu;
+  std::print("Using chunk size: {} bytes\\n", default_chunk);
 
-std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   size_t bytes_sent = 0;
   while (bytes_sent < file_size) {
+    // Re-check MTU in case it changes; recompute effective chunk (MTU-3).
     mtu = ftp_ctx.peripheral.mtu();
-    chunk_size = mtu; // ATT header size
-
-    size_t bytes_to_send =
-        std::min(static_cast<size_t>(chunk_size), file_size - bytes_sent);
+    default_chunk = (mtu > 3) ? (mtu - 3) : mtu;
+    size_t bytes_to_send = std::min(default_chunk, file_size - bytes_sent);
     std::vector<uint8_t> chunk_data(file_data.data() + bytes_sent,
                                     file_data.data() + bytes_sent +
                                         bytes_to_send);
