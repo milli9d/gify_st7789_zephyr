@@ -62,6 +62,12 @@ ssize_t bt_gatt_ftp_write_chunk(struct bt_conn* conn, const struct bt_gatt_attr*
         return rc;
     }
 
+    rc = fs_sync(&file);
+    if (rc != 0) {
+        LOG_ERR("Syncing filesystem failed");
+        return rc;
+    }
+
     return len;
 }
 
@@ -83,7 +89,13 @@ ssize_t bt_gatt_ftp_write_close_file(struct bt_conn* conn, const struct bt_gatt_
         return len;
     }
 
-    int rc = fs_close(&file);
+    int rc = fs_sync(&file);
+    if (rc != 0) {
+        LOG_ERR("Syncing filesystem failed");
+        return rc;
+    }
+
+    rc = fs_close(&file);
     if (rc != 0) {
         LOG_ERR("Closing file failed");
         return rc;
