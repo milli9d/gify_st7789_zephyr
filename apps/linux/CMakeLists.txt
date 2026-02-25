@@ -25,18 +25,5 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 endif()
 
-
-find_package(simpleble REQUIRED CONFIG)
-
-file (GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
-    "src/*.cpp"
-    "src/*.c"
-)
-
-add_executable(ble_ftp ${SRC_FILES})
-
-target_include_directories(ble_ftp
-    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
-)
-
-target_link_libraries(ble_ftp simpleble::simpleble)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/ble_ftp)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/gif_cooker)

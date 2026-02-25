@@ -4,3 +4,6 @@
 [submodule "modules/reiki_sdk_zephyr"]
 	path = modules/reiki_sdk_zephyr
 	url = https://github.com/milli9d/reiki_sdk_zephyr.git
+[submodule "apps/linux/ble_ftp/simpleble"]
+	path = apps/linux/ble_ftp/simpleble
+	url = https://github.com/simpleble/simpleble.git

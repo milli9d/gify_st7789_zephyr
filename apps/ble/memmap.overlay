@@ -4,10 +4,21 @@
 * SPDX-License-Identifier: Apache-2.0
 */
 
-&flash0 {
-	reg = <0x0 DT_SIZE_M(16)>;
-    status = "okay";
+/ {
+    chosen {
+        zephyr,ipc_shm = &shm0;
+        zephyr,ipc = &ipm0;
+    };
+};
 
+&ipm0 {
+    status = "okay";
+};
+
+&flash0 {
+    reg = <0x0 DT_SIZE_M(16)>;
+    status = "okay";
+    
     partitions {
         compatible = "fixed-partitions";
         #address-cells = <1>;
