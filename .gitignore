@@ -1,0 +1,8 @@
+*build*
+*cache*
+
+out/
+bin/
+lib/
+
+.vscode*
